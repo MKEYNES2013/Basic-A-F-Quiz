@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UB Basic Accounting/ Finance Quiz">
+<title>University of Buckingham — Basic Accounting/ Finance Quiz</title>
+<style>
+  :root {
+    --ub-charcoal: #2A2F30;
+    --ub-gold: #C9A227;
+    --ub-gold-light: #E8D48B;
+    --ub-cream: #FAF8F3;
+    --ub-cream-dark: #F0EBE0;
+    --ub-white: #FFFFFF;
+    --ub-gray: #6E6E6E;
+    --ub-light-gray: #E5E0D8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--ub-cream);
+    color: var(--ub-charcoal);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .container {
+    width: 100%;
+    max-width: 700px;
+    background: var(--ub-white);
+    border-radius: 24px;
+    border: 1px solid var(--ub-light-gray);
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(42,47,48,0.12);
+  }
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .logo-wrap img {
+    max-width: 320px;
+    width: 100%;
+    height: auto;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+    color: var(--ub-charcoal);
+    font-weight: 700;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--ub-gray);
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--ub-light-gray);
+    background: var(--ub-cream);
+    color: var(--ub-charcoal);
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]::placeholder { color: var(--ub-gray); }
+  input[type="text"]:focus { border-color: var(--ub-gold); }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+  .btn-primary {
+    background: var(--ub-gold);
+    color: var(--ub-charcoal);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,162,39,0.35); }
+  .btn-secondary {
+    background: var(--ub-charcoal);
+    color: var(--ub-white);
+  }
+  .btn-secondary:hover { background: #3d4445; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  .progress-bar {
+    height: 8px;
+    background: var(--ub-light-gray);
+    border-radius: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--ub-gold);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  .question-counter {
+    text-align: right;
+    color: var(--ub-gray);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .question-text {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: var(--ub-charcoal);
+  }
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--ub-light-gray);
+    background: var(--ub-cream);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ub-charcoal);
+  }
+  .option:hover { background: var(--ub-cream-dark); border-color: var(--ub-gold); }
+  .option.selected { border-color: var(--ub-gold); background: rgba(201,162,39,0.08); }
+  .option.correct { border-color: #2E7D32; background: rgba(46,125,50,0.08); }
+  .option.wrong { border-color: #C62828; background: rgba(198,40,40,0.08); }
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--ub-light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--ub-charcoal);
+  }
+  .option.correct .option-letter { background: #2E7D32; color: #fff; }
+  .option.wrong .option-letter { background: #C62828; color: #fff; }
+
+  .explanation {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--ub-cream);
+    border-left: 4px solid var(--ub-gold);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ub-charcoal);
+    display: none;
+  }
+  .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+  .result-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(var(--ub-gold) calc(var(--score) * 10%), var(--ub-light-gray) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .result-circle::before {
+    content: '';
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: var(--ub-white);
+  }
+  .result-score {
+    position: relative;
+    font-size: 2.2rem;
+    font-weight: 700;
+    z-index: 1;
+    color: var(--ub-charcoal);
+  }
+  .result-message {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+    color: var(--ub-charcoal);
+  }
+
+  .leaderboard {
+    margin-top: 20px;
+  }
+  .leaderboard h2 {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    text-align: center;
+    color: var(--ub-charcoal);
+  }
+  .lb-date {
+    text-align: center;
+    color: var(--ub-gray);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--ub-cream);
+    transition: background 0.2s;
+    border: 1px solid var(--ub-light-gray);
+  }
+  .lb-row:hover { background: var(--ub-cream-dark); }
+  .lb-rank {
+    width: 32px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ub-charcoal);
+  }
+  .lb-rank.gold { color: var(--ub-gold); }
+  .lb-rank.silver { color: #8E8E8E; }
+  .lb-rank.bronze { color: #B87333; }
+  .lb-name { flex: 1; font-size: 1rem; color: var(--ub-charcoal); }
+  .lb-score {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ub-gold);
+  }
+  .lb-time {
+    font-size: 0.75rem;
+    color: var(--ub-gray);
+    margin-left: 8px;
+  }
+  .no-scores {
+    text-align: center;
+    color: var(--ub-gray);
+    padding: 20px;
+    font-style: italic;
+  }
+
+  .warning {
+    background: var(--ub-cream);
+    border-left: 4px solid var(--ub-gold);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: var(--ub-charcoal);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--ub-light-gray);
+    margin: 20px 0;
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 20px; border-radius: 16px; }
+    h1 { font-size: 1.3rem; }
+    .question-text { font-size: 1rem; }
+    .logo-wrap img { max-width: 240px; }
+  }
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LOGIN SCREEN -->
+  <div id="screen-login" class="screen active">
+    <div class="logo-wrap">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/The_University_of_BUckingham_Charcoal_Logo.png/1280px-The_University_of_BUckingham_Charcoal_Logo.png" alt="University of Buckingham">
+    </div>
+    <h1>Basic Accounting/ Finance Quiz</h1>
+    <p class="subtitle">BSc Accounting & Finance — University of Buckingham</p>
+    <div class="warning">One attempt per person. Enter your name to begin.</div>
+    <input type="text" id="playerName" placeholder="Your name" maxlength="20" autocomplete="off">
+    <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+    <button class="btn btn-secondary" onclick="showLeaderboard()">View Leaderboard</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="screen-quiz" class="screen">
+    <div class="question-counter" id="qCounter">Question 1 of 10</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:10%"></div></div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsBox"></div>
+    <div class="explanation" id="explanationBox"></div>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="margin-top:20px; display:none;">Next Question</button>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" class="screen">
+    <div class="logo-wrap">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/The_University_of_BUckingham_Charcoal_Logo.png/1280px-The_University_of_BUckingham_Charcoal_Logo.png" alt="University of Buckingham" style="max-width:200px;">
+    </div>
+    <h1>Quiz Complete!</h1>
+    <div class="result-circle" id="resultCircle" style="--score:0;">
+      <div class="result-score" id="resultScore">0/10</div>
+    </div>
+    <div class="result-message" id="resultMessage"></div>
+    <button class="btn btn-primary" onclick="showLeaderboard()">View Leaderboard</button>
+    <button class="btn btn-secondary" onclick="goHome()">Back to Home</button>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="logo-wrap">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/The_University_of_BUckingham_Charcoal_Logo.png/1280px-The_University_of_BUckingham_Charcoal_Logo.png" alt="University of Buckingham" style="max-width:200px;">
+    </div>
+    <h1>Leaderboard</h1>
+    <p class="lb-date" id="lbDate"></p>
+    <div class="leaderboard" id="leaderboardBox"></div>
+    <button class="btn btn-secondary" onclick="goHome()" style="margin-top:20px;">Back to Home</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTION_BANK = [
+  {q:"What does APR stand for?",opts:["Average Personal Return","Annual Payment Rate","Annual Percentage Rate","Applied Percentage Ratio"],ans:2,exp:"APR is the total cost of borrowing per year, including fees."},
+  {q:"What is an ISA?",opts:["International Savings Account","Individual Savings Account","Individual Salary Account","Investment Security Account"],ans:1,exp:"An ISA is a UK savings or investment account where you do not pay tax on the interest earned."},
+  {q:"What is the standard rate of VAT in the UK?",opts:["15%","10%","20%","25%"],ans:2,exp:"The standard rate of Value Added Tax in the UK is 20%."},
+  {q:"What is National Insurance?",opts:["A voluntary pension contribution","A healthcare subscription fee","A property ownership tax","A tax on earnings that funds state benefits"],ans:3,exp:"National Insurance is a tax on earnings that funds the NHS, the State Pension, and unemployment support."},
+  {q:"What is the personal allowance?",opts:["The maximum ISA deposit","The tax rate on high earners","The amount of income you can earn before paying Income Tax","The amount of VAT you can reclaim"],ans:2,exp:"The personal allowance is the amount of income you can earn each year before you start paying Income Tax."},
+  {q:"What is a current account used for?",opts:["A long-term savings plan","An investment portfolio","Day-to-day banking such as receiving wages and paying bills","A mortgage repayment account"],ans:2,exp:"A current account is used for everyday transactions like receiving wages, paying bills, and debit card spending."},
+  {q:"What is the key difference between a debit card and a credit card?",opts:["Both borrow money from the bank","Both take money from your account immediately","A credit card is only for online purchases","A debit card spends money from your bank account; a credit card borrows money"],ans:3,exp:"A debit card uses your own money directly from your account; a credit card borrows from the bank and must be repaid later."},
+  {q:"What is an overdraft?",opts:["A loan for buying a car","A penalty for missed payments","An arrangement allowing you to spend more than you have in your account","A savings bonus for exceeding your target"],ans:2,exp:"An overdraft is an agreed facility that lets you withdraw more money than you currently hold in your account."},
+  {q:"What is a mortgage?",opts:["A short-term loan for business equipment","A credit card for property investors","A long-term loan used to buy property, secured against that property","An insurance policy for homeowners"],ans:2,exp:"A mortgage is a long-term loan specifically for buying property, where the property itself acts as security for the lender."},
+  {q:"What is a payslip?",opts:["A bank statement showing monthly spending","A contract of employment","A document from an employer showing gross pay, deductions, and net pay","A receipt for goods purchased"],ans:2,exp:"A payslip is a document from your employer detailing your gross pay, all deductions (tax, NI), and your net pay."},
+  {q:"What is Council Tax?",opts:["A tax on business profits","A tax paid when buying a house","A local tax on households to fund services like rubbish collection and policing","A national tax on luxury goods"],ans:2,exp:"Council Tax is a local tax paid by households to fund services such as rubbish collection, policing, and local schools."},
+  {q:"What is Stamp Duty Land Tax (SDLT)?",opts:["A tax on sending letters","A fee for registering a business","A tax paid when you buy a property or land over a certain price","A tax on imported goods"],ans:2,exp:"Stamp Duty Land Tax is paid when you purchase a property or land over a certain price in England and Northern Ireland."},
+  {q:"What is a benefit in kind?",opts:["A cash bonus for good performance","A government welfare payment","A non-cash perk from an employer that is taxed by HMRC","A tax refund from HMRC"],ans:2,exp:"A benefit in kind is a non-cash perk from an employer (for example, a company car) that is taxed by HMRC."},
+  {q:"What is auto-enrolment?",opts:["A scheme to automatically file tax returns","A requirement to join a trade union","A government scheme that automatically places eligible workers into a workplace pension","A system for automatic bill payments"],ans:2,exp:"Auto-enrolment is a UK government scheme that automatically places eligible workers into a workplace pension."},
+  {q:"What is the National Living Wage?",opts:["The average wage across all industries","The maximum wage a company can pay","The legal minimum hourly pay for workers aged 23 and over in the UK","A voluntary pay guideline for employers"],ans:2,exp:"The National Living Wage is the legal minimum hourly pay rate for workers aged 23 and over in the UK."},
+  {q:"What is the Bank of England?",opts:["The largest commercial bank in the UK","A government department that prints passports","The UK's central bank, responsible for interest rates and financial stability","The UK's main investment fund"],ans:2,exp:"The Bank of England is the UK's central bank, responsible for setting interest rates, issuing banknotes, and maintaining financial stability."},
+  {q:"What does the Bank of England's base rate influence?",opts:["It sets the price of petrol","It controls the exchange rate of the pound directly","It influences the interest rates High Street banks charge borrowers and pay savers","It determines the amount of VAT collected"],ans:2,exp:"The base rate influences the interest rates that High Street banks charge on loans and pay to savers across the UK."},
+  {q:"What does CPI stand for?",opts:["Corporate Profit Index","Consumer Production Indicator","Consumer Prices Index","Cost Price Inflation"],ans:2,exp:"CPI stands for Consumer Prices Index — the UK's main official measure of inflation."},
+  {q:"What is inflation?",opts:["A decrease in the price of goods","An increase in the value of the pound","A rise in unemployment levels","A sustained increase in the general price level of goods and services"],ans:3,exp:"Inflation is a sustained increase in the general price level, meaning money loses purchasing power over time."},
+  {q:"What is a recession?",opts:["A period of rapid economic growth","When unemployment falls below 2%","When the stock market reaches an all-time high","A period of economic decline, commonly defined as two consecutive quarters of negative GDP growth"],ans:3,exp:"A recession is commonly defined as two consecutive quarters of negative economic growth (falling GDP)."},
+  {q:"What is GDP?",opts:["Government Debt Percentage","Gross Domestic Profit","General Development Plan","Gross Domestic Product — the total value of goods and services produced in the UK"],ans:3,exp:"GDP (Gross Domestic Product) is the total monetary value of all goods and services produced within the UK over a set period."},
+  {q:"What is the FTSE 100?",opts:["The top 100 UK taxpayers","A list of the 100 fastest-growing startups","The 100 largest UK government projects","An index tracking the share prices of the 100 largest companies on the London Stock Exchange"],ans:3,exp:"The FTSE 100 tracks the share prices of the 100 largest companies listed on the London Stock Exchange."},
+  {q:"What is the London Stock Exchange (LSE)?",opts:["The London School of Economics","A currency exchange bureau","The UK's largest insurance company","The primary UK marketplace where public company shares and securities are bought and sold"],ans:3,exp:"The London Stock Exchange is the primary UK marketplace where public company shares and other securities are traded."},
+  {q:"What does the FCA do?",opts:["The Football Coaches Association","The Foreign Currency Authority","The Financial Competition Agency","The Financial Conduct Authority, which regulates financial firms to protect consumers"],ans:3,exp:"The FCA (Financial Conduct Authority) regulates financial firms in the UK to protect consumers and ensure market integrity."},
+  {q:"Who is the Chancellor of the Exchequer?",opts:["The head of the Bank of England","The mayor of London","The senior UK government minister responsible for economic and financial matters","The leader of the opposition party"],ans:2,exp:"The Chancellor of the Exchequer is the senior UK government minister responsible for the Budget and economic policy."},
+  {q:"What is HMRC?",opts:["His Majesty's Royal Customs","The Health and Medical Regulatory Commission","The Housing and Mortgage Review Council","His Majesty's Revenue and Customs — the department that collects taxes"],ans:3,exp:"HMRC (His Majesty's Revenue and Customs) is the UK government department responsible for collecting taxes."},
+  {q:"What is the Budget?",opts:["The monthly Bank of England interest rate decision","The annual report on NHS waiting lists","The government's plan for military spending only","The annual statement by the Chancellor outlining tax plans, spending, and economic forecasts"],ans:3,exp:"The Budget is the annual statement by the Chancellor setting out government tax plans, spending, and economic forecasts."},
+  {q:"What is the UK national debt?",opts:["The total savings of UK citizens","The annual profit of UK businesses","The amount the UK spends on imports each year","The total amount of money the UK government has borrowed over time and not yet repaid"],ans:3,exp:"The national debt is the total amount of money the UK government has borrowed over time and has not yet repaid."},
+  {q:"What is a trade deficit?",opts:["When exports exceed imports","When government spending exceeds tax revenue","When a company loses money on a product","When the value of a country's imports exceeds the value of its exports"],ans:3,exp:"A trade deficit occurs when the value of a country's imports is greater than the value of its exports."},
+  {q:"What is quantitative easing?",opts:["A government policy to increase income tax","A method of counting votes in elections","A technique for measuring business output","A policy where the Bank of England creates money to buy bonds, aiming to lower interest rates and stimulate the economy"],ans:3,exp:"Quantitative easing is a monetary policy where the Bank of England creates money electronically to buy government bonds, stimulating the economy."},
+  {q:"What is revenue?",opts:["Total profit after tax","The cost of producing goods","The amount of money spent on marketing","The total amount of money a business receives from selling its goods or services"],ans:3,exp:"Revenue (or turnover) is the total amount of money a business receives from selling its goods or services."},
+  {q:"What is profit?",opts:["Total revenue before costs are deducted","The amount of tax paid to the government","The number of units sold","The money left over when total costs are subtracted from total revenue"],ans:3,exp:"Profit is the money left over when a business's total costs are subtracted from its total revenue."},
+  {q:"What are fixed costs?",opts:["Costs that change with production levels","Costs that only occur once","Costs that depend on sales commissions","Costs that do not change with the level of output, such as rent and insurance"],ans:3,exp:"Fixed costs remain constant regardless of how much a business produces, such as rent and insurance."},
+  {q:"What are variable costs?",opts:["Costs that stay the same each month","Costs related to building maintenance","Costs paid annually like insurance","Costs that change directly with the level of production, such as raw materials"],ans:3,exp:"Variable costs change directly with the level of production, such as raw materials and packaging."},
+  {q:"What is the break-even point?",opts:["The point where revenue is maximised","The point where a business pays off all its loans","The point where sales exceed market demand","The level of output where total revenue equals total costs, meaning no profit or loss"],ans:3,exp:"The break-even point is where total revenue exactly equals total costs, so the business makes neither profit nor loss."},
+  {q:"What is cash flow?",opts:["The total profit made by a business","The value of all assets owned","The amount of tax owed to HMRC","The movement of money into and out of a business over a period of time"],ans:3,exp:"Cash flow tracks the actual movement of money into and out of a business, distinct from profit."},
+  {q:"What is a balance sheet?",opts:["A record of daily sales transactions","A forecast of future revenue","A list of employee salaries","A financial statement showing what a business owns and owes at a single point in time"],ans:3,exp:"The balance sheet provides a snapshot of a business's assets, liabilities, and equity at a specific moment."},
+  {q:"What is an income statement?",opts:["A list of all company shareholders","A record of bank account balances","A government tax return document","A financial report showing revenues, costs, and profit or loss over a specific period"],ans:3,exp:"The income statement (Profit & Loss) shows a business's revenues, costs, and profit or loss over a period."},
+  {q:"What is a budget?",opts:["A summary of last year's profits","A bank loan agreement","An employee performance review","A financial plan setting out expected income and expenditure for a future period"],ans:3,exp:"A budget is a forward-looking financial plan that sets out expected income and expenditure."},
+  {q:"What is a bank loan?",opts:["Money given by the government that does not need repaying","A share of ownership in a company","A tax refund from HMRC","A sum of money borrowed from a bank that is repaid with interest over an agreed period"],ans:3,exp:"A bank loan is borrowed capital that must be repaid with interest over a scheduled period."},
+  {q:"What is a business overdraft?",opts:["A long-term investment in the stock market","A fixed monthly payment to suppliers","An insurance policy against bad debts","A short-term facility allowing a business to withdraw more than it currently holds in its account"],ans:3,exp:"A business overdraft is a short-term bank facility allowing withdrawal beyond the current account balance."},
+  {q:"What is a government grant?",opts:["A low-interest loan from a bank","A tax on business profits","A dividend payment to shareholders","Financial assistance given to a business by the government that does not have to be repaid"],ans:3,exp:"A government grant is financial assistance that does not need to be repaid, unlike a loan."},
+  {q:"What is a share?",opts:["A loan given to a company","A unit of currency","A type of business insurance","A unit of ownership in a company"],ans:3,exp:"A share represents a unit of ownership in a company; shareholders own a portion of the business."},
+  {q:"What is a dividend?",opts:["A tax paid on company profits","A bonus given to employees","A fee charged by the stock exchange","A distribution of a portion of a company's profits to its shareholders"],ans:3,exp:"A dividend is a payment made from a company's profits to its shareholders as a reward for ownership."},
+  {q:"What is retained profit?",opts:["Profit given to the government as tax","Profit shared with all customers as vouchers","Profit donated to charity","Profit kept within the business after dividends are paid, used for reinvestment"],ans:3,exp:"Retained profit is kept inside the business after dividends are paid, used for reinvestment and growth."},
+  {q:"What is working capital?",opts:["The total value of company buildings","The annual salary of all staff","The profit made on each sale","The money available for day-to-day operations, calculated as current assets minus current liabilities"],ans:3,exp:"Working capital measures the money available for day-to-day operations (current assets minus current liabilities)."},
+  {q:"What is liquidity?",opts:["The ability to increase production quickly","The total value of company shares","The rate of return on an investment","The ability of a business to meet its short-term financial obligations"],ans:3,exp:"Liquidity is the ability of a business to pay its short-term bills and obligations as they fall due."},
+  {q:"What is insolvency?",opts:["When a business makes record profits","When a business expands to a new country","When a business hires too many staff","When a business cannot pay its debts when they are due"],ans:3,exp:"Insolvency is when a business cannot pay its debts when they are due, which can lead to administration."},
+  {q:"What is a creditor?",opts:["A customer who buys goods on credit","An employee owed wages","A shareholder who owns part of the business","A person or business that is owed money by the company"],ans:3,exp:"A creditor is any person or business that is owed money by the company (e.g., suppliers, lenders)."},
+  {q:"What is a debtor?",opts:["A bank that provides loans","A supplier who delivers raw materials","An investor who buys company shares","A person or business that owes money to the company"],ans:3,exp:"A debtor is any person or business that owes money to the company (e.g., customers who haven't paid yet)."}
+];
+
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let playerName = "";
+let hasAnswered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getToday() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) {
+    alert("Please enter your name to start.");
+    return;
+  }
+  const attempts = JSON.parse(localStorage.getItem('quiz_attempts') || '[]');
+  const alreadyPlayed = attempts.find(a => a.name === name);
+  if (alreadyPlayed) {
+    alert("You have already taken this quiz! View the leaderboard to see your score.");
+    showLeaderboard();
+    return;
+  }
+  playerName = name;
+  currentQuestions = shuffle(QUESTION_BANK).slice(0, 10);
+  currentIndex = 0;
+  score = 0;
+  hasAnswered = false;
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = currentQuestions[currentIndex];
+  document.getElementById('qCounter').textContent = `Question ${currentIndex + 1} of 10`;
+  document.getElementById('progressBar').style.width = `${(currentIndex + 1) * 10}%`;
+  document.getElementById('questionText').textContent = q.q;
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<div class="option-letter">${String.fromCharCode(65+i)}</div><div>${opt}</div>`;
+    div.onclick = () => selectOption(i, div);
+    box.appendChild(div);
+  });
+  document.getElementById('explanationBox').classList.remove('show');
+  document.getElementById('nextBtn').style.display = 'none';
+  hasAnswered = false;
+}
+
+function selectOption(idx, el) {
+  if (hasAnswered) return;
+  hasAnswered = true;
+  const q = currentQuestions[currentIndex];
+  const options = document.querySelectorAll('.option');
+  options.forEach((opt, i) => {
+    opt.style.pointerEvents = 'none';
+    if (i === q.ans) opt.classList.add('correct');
+    else if (i === idx && i !== q.ans) opt.classList.add('wrong');
+  });
+  if (idx === q.ans) score++;
+  document.getElementById('explanationBox').textContent = q.exp;
+  document.getElementById('explanationBox').classList.add('show');
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex < 10) {
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  const today = getToday();
+  const attempts = JSON.parse(localStorage.getItem('quiz_attempts') || '[]');
+  attempts.push({
+    name: playerName,
+    score: score,
+    date: today,
+    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+  });
+  localStorage.setItem('quiz_attempts', JSON.stringify(attempts));
+  showScreen('screen-result');
+  document.getElementById('resultCircle').style.setProperty('--score', score);
+  document.getElementById('resultScore').textContent = `${score}/10`;
+  let msg = "";
+  if (score >= 8) msg = "Excellent! Strong foundation in basic finance.";
+  else if (score >= 5) msg = "Good effort. Review the concepts and try again tomorrow.";
+  else msg = "Keep studying! Focus on the core concepts and retake the quiz.";
+  document.getElementById('resultMessage').textContent = msg;
+}
+
+function showLeaderboard() {
+  const attempts = JSON.parse(localStorage.getItem('quiz_attempts') || '[]');
+  document.getElementById('lbDate').textContent = `${attempts.length} player${attempts.length !== 1 ? 's' : ''} have taken the quiz`;
+  attempts.sort((a, b) => b.score - a.score || a.time.localeCompare(b.time));
+  const box = document.getElementById('leaderboardBox');
+  box.innerHTML = '';
+  if (attempts.length === 0) {
+    box.innerHTML = '<div class="no-scores">No scores yet. Be the first to play!</div>';
+  }
+  else {
+    attempts.forEach((entry, i) => {
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      let rankClass = '';
+      if (i === 0) rankClass = 'gold';
+      else if (i === 1) rankClass = 'silver';
+      else if (i === 2) rankClass = 'bronze';
+      row.innerHTML = `
+        <div class="lb-rank ${rankClass}">#${i + 1}</div>
+        <div class="lb-name">${entry.name}</div>
+        <div class="lb-score">${entry.score}/10</div>
+        <div class="lb-time">${entry.date}</div>
+      `;
+      box.appendChild(row);
+    });
+  }
+  showScreen('screen-leaderboard');
+}
+
+function goHome() {
+  document.getElementById('playerName').value = '';
+  showScreen('screen-login');
+}
+</script>
+</body>
+</html>
