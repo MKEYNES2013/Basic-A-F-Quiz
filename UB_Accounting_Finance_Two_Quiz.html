@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UB Accounting & Finance Quiz Two">
+<title>University of Buckingham — Accounting & Finance Quiz Two</title>
+<style>
+  :root {
+    --ub-charcoal: #2A2F30;
+    --ub-gold: #C9A227;
+    --ub-gold-light: #E8D48B;
+    --ub-cream: #FAF8F3;
+    --ub-cream-dark: #F0EBE0;
+    --ub-white: #FFFFFF;
+    --ub-gray: #6E6E6E;
+    --ub-light-gray: #E5E0D8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--ub-cream);
+    color: var(--ub-charcoal);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .container {
+    width: 100%;
+    max-width: 700px;
+    background: var(--ub-white);
+    border-radius: 24px;
+    border: 1px solid var(--ub-light-gray);
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(42,47,48,0.12);
+  }
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .logo-wrap img {
+    max-width: 320px;
+    width: 100%;
+    height: auto;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+    color: var(--ub-charcoal);
+    font-weight: 700;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--ub-gray);
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--ub-light-gray);
+    background: var(--ub-cream);
+    color: var(--ub-charcoal);
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]::placeholder { color: var(--ub-gray); }
+  input[type="text"]:focus { border-color: var(--ub-gold); }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+  .btn-primary {
+    background: var(--ub-gold);
+    color: var(--ub-charcoal);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,162,39,0.35); }
+  .btn-secondary {
+    background: var(--ub-charcoal);
+    color: var(--ub-white);
+  }
+  .btn-secondary:hover { background: #3d4445; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  .progress-bar {
+    height: 8px;
+    background: var(--ub-light-gray);
+    border-radius: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--ub-gold);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  .question-counter {
+    text-align: right;
+    color: var(--ub-gray);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .question-text {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: var(--ub-charcoal);
+  }
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--ub-light-gray);
+    background: var(--ub-cream);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ub-charcoal);
+  }
+  .option:hover { background: var(--ub-cream-dark); border-color: var(--ub-gold); }
+  .option.selected { border-color: var(--ub-gold); background: rgba(201,162,39,0.08); }
+  .option.correct { border-color: #2E7D32; background: rgba(46,125,50,0.08); }
+  .option.wrong { border-color: #C62828; background: rgba(198,40,40,0.08); }
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--ub-light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--ub-charcoal);
+  }
+  .option.correct .option-letter { background: #2E7D32; color: #fff; }
+  .option.wrong .option-letter { background: #C62828; color: #fff; }
+
+  .explanation {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--ub-cream);
+    border-left: 4px solid var(--ub-gold);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ub-charcoal);
+    display: none;
+  }
+  .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+  .result-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(var(--ub-gold) calc(var(--score) * 10%), var(--ub-light-gray) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .result-circle::before {
+    content: '';
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: var(--ub-white);
+  }
+  .result-score {
+    position: relative;
+    font-size: 2.2rem;
+    font-weight: 700;
+    z-index: 1;
+    color: var(--ub-charcoal);
+  }
+  .result-message {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+    color: var(--ub-charcoal);
+  }
+
+  .leaderboard {
+    margin-top: 20px;
+  }
+  .leaderboard h2 {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    text-align: center;
+    color: var(--ub-charcoal);
+  }
+  .lb-date {
+    text-align: center;
+    color: var(--ub-gray);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--ub-cream);
+    transition: background 0.2s;
+    border: 1px solid var(--ub-light-gray);
+  }
+  .lb-row:hover { background: var(--ub-cream-dark); }
+  .lb-rank {
+    width: 32px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ub-charcoal);
+  }
+  .lb-rank.gold { color: var(--ub-gold); }
+  .lb-rank.silver { color: #8E8E8E; }
+  .lb-rank.bronze { color: #B87333; }
+  .lb-name { flex: 1; font-size: 1rem; color: var(--ub-charcoal); }
+  .lb-score {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ub-gold);
+  }
+  .lb-time {
+    font-size: 0.75rem;
+    color: var(--ub-gray);
+    margin-left: 8px;
+  }
+  .no-scores {
+    text-align: center;
+    color: var(--ub-gray);
+    padding: 20px;
+    font-style: italic;
+  }
+
+  .warning {
+    background: var(--ub-cream);
+    border-left: 4px solid var(--ub-gold);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: var(--ub-charcoal);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--ub-light-gray);
+    margin: 20px 0;
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 20px; border-radius: 16px; }
+    h1 { font-size: 1.3rem; }
+    .question-text { font-size: 1rem; }
+    .logo-wrap img { max-width: 240px; }
+  }
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LOGIN SCREEN -->
+  <div id="screen-login" class="screen active">
+    <div class="logo-wrap">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/The_University_of_BUckingham_Charcoal_Logo.png/1280px-The_University_of_BUckingham_Charcoal_Logo.png" alt="University of Buckingham">
+    </div>
+    <h1>Accounting & Finance Quiz Two</h1>
+    <p class="subtitle">BSc Accounting & Finance — University of Buckingham</p>
+    <div class="warning">One attempt per person. Enter your name to begin.</div>
+    <input type="text" id="playerName" placeholder="Your name" maxlength="20" autocomplete="off">
+    <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+    <button class="btn btn-secondary" onclick="showLeaderboard()">View Leaderboard</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="screen-quiz" class="screen">
+    <div class="question-counter" id="qCounter">Question 1 of 10</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:10%"></div></div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsBox"></div>
+    <div class="explanation" id="explanationBox"></div>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="margin-top:20px; display:none;">Next Question</button>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" class="screen">
+    <div class="logo-wrap">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/The_University_of_BUckingham_Charcoal_Logo.png/1280px-The_University_of_BUckingham_Charcoal_Logo.png" alt="University of Buckingham" style="max-width:200px;">
+    </div>
+    <h1>Quiz Complete!</h1>
+    <div class="result-circle" id="resultCircle" style="--score:0;">
+      <div class="result-score" id="resultScore">0/10</div>
+    </div>
+    <div class="result-message" id="resultMessage"></div>
+    <button class="btn btn-primary" onclick="showLeaderboard()">View Leaderboard</button>
+    <button class="btn btn-secondary" onclick="goHome()">Back to Home</button>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="logo-wrap">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/The_University_of_BUckingham_Charcoal_Logo.png/1280px-The_University_of_BUckingham_Charcoal_Logo.png" alt="University of Buckingham" style="max-width:200px;">
+    </div>
+    <h1>Leaderboard</h1>
+    <p class="lb-date" id="lbDate"></p>
+    <div class="leaderboard" id="leaderboardBox"></div>
+    <button class="btn btn-secondary" onclick="goHome()" style="margin-top:20px;">Back to Home</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTION_BANK = [
+  {q:"What is the purpose of a cash flow statement?",opts:["To show only profits","To show the movement of cash in and out of a business","To list all company assets","To display tax obligations"],ans:1,exp:"A cash flow statement shows how cash moves through a business, distinct from profit."},
+  {q:"What is depreciation?",opts:["A decrease in stock price","The reduction in value of an asset over time","A tax penalty","An accounting error"],ans:1,exp:"Depreciation is the allocation of an asset's cost over its useful life."},
+  {q:"What does EBIT stand for?",opts:["Earnings Before Income Tax","Earnings Before Interest and Tax","Economic Business Investment Tax","Employee Benefit Income Tax"],ans:1,exp:"EBIT (Earnings Before Interest and Tax) is operating profit before financing and tax costs."},
+  {q:"What is the purpose of a trial balance?",opts:["To verify that debits equal credits","To calculate profit","To record sales only","To summarize tax payments"],ans:0,exp:"A trial balance checks that total debits equal total credits in the ledger."},
+  {q:"What is accrual accounting?",opts:["Recording transactions when cash is received","Recording transactions when they occur, not when cash changes hands","Recording only expenses","Recording only revenue"],ans:1,exp:"Accrual accounting records transactions when they occur, regardless of cash movement."},
+  {q:"What is a provision in accounting?",opts:["A discount offered to customers","An amount set aside for a probable future liability","A reduction in inventory","A payment to suppliers"],ans:1,exp:"A provision is money set aside to cover a probable future cost or liability."},
+  {q:"What does the term 'impairment' mean?",opts:["Damage to physical assets","A reduction in the recoverable amount of an asset below its book value","Loss of revenue","Unpaid invoices"],ans:1,exp:"Impairment is when an asset's recoverable amount falls below its carrying value."},
+  {q:"What is goodwill?",opts:["Customer satisfaction","The premium paid above fair value when acquiring a business","Staff morale","Marketing effectiveness"],ans:1,exp:"Goodwill is the premium paid when buying a business above the fair value of its net assets."},
+  {q:"What is the current ratio used for?",opts:["Measuring profitability","Assessing liquidity and ability to pay short-term debts","Calculating revenue growth","Measuring asset turnover"],ans:1,exp:"The current ratio (current assets ÷ current liabilities) measures short-term solvency."},
+  {q:"What is the debt-to-equity ratio?",opts:["Total debt divided by total equity","A measure of financial leverage showing debt relative to shareholder equity","Revenue divided by expenses","Assets divided by liabilities"],ans:1,exp:"The debt-to-equity ratio measures financial leverage and capital structure."},
+  {q:"What is the purpose of an audit?",opts:["To increase company revenue","To verify that financial statements are accurate and comply with standards","To reduce taxes","To eliminate all business risks"],ans:1,exp:"An audit provides independent verification of financial statement accuracy and compliance."},
+  {q:"What are intangible assets?",opts:["Physical machinery","Non-physical assets like patents, trademarks, and copyrights","Inventory items","Cash reserves"],ans:1,exp:"Intangible assets are non-physical but valuable assets such as patents and brand names."},
+  {q:"What is amortization?",opts:["Paying off debt quickly","The allocation of an intangible asset's cost over its useful life","Reducing staff numbers","Lowering prices"],ans:1,exp:"Amortization spreads the cost of intangible assets over their expected useful lives."},
+  {q:"What is an insider?",opts:["An employee working in-house","A person with inside knowledge of a company's activities and finances","A customer","A supplier"],ans:1,exp:"An insider is someone (director, officer, major shareholder) with access to material non-public information."},
+  {q:"What is the purpose of internal controls?",opts:["To increase sales","To prevent fraud and ensure reliable financial reporting","To reduce employee hours","To eliminate all risks"],ans:1,exp:"Internal controls protect assets, prevent fraud, and ensure accurate financial reporting."},
+  {q:"What is materiality in accounting?",opts:["The physical nature of assets","The significance of information that could influence decisions","The cost of materials purchased","The timing of transactions"],ans:1,exp:"Materiality refers to the significance of information in making business decisions."},
+  {q:"What does IFRS stand for?",opts:["International Financial Reporting Standards","Internal Financial Regulatory System","International Finance Risk System","Individual Financial Reporting Schedule"],ans:0,exp:"IFRS are global accounting standards used by most countries outside the USA."},
+  {q:"What is the purpose of a management letter?",opts:["Communication from employees","Auditor's report on control deficiencies and recommendations","Marketing communication","Customer feedback"],ans:1,exp:"A management letter from auditors highlights internal control weaknesses and improvements."},
+  {q:"What is a qualified audit opinion?",opts:["The auditor fully approves the financial statements","The auditor approves with reservations about specific issues","The auditor cannot verify the accounts","The auditor recommends expansion"],ans:1,exp:"A qualified opinion means the auditor identified limitations or departures from standards."},
+  {q:"What is earnings per share (EPS)?",opts:["Total company earnings","Net profit divided by the number of outstanding shares","Share price divided by revenue","Total assets divided by shares"],ans:1,exp:"EPS is calculated as net profit divided by outstanding shares, showing profit per share."},
+  {q:"What is a covenant in a loan agreement?",opts:["A promise to repay interest","A promise to increase dividends","A restriction or undertaking that the borrower must comply with","A marketing agreement"],ans:2,exp:"A covenant is a binding condition or restriction in a loan agreement."},
+  {q:"What is the purpose of segregation of duties?",opts:["To reduce employee workload","To prevent fraud by dividing responsibilities among different people","To speed up processing","To save money on salaries"],ans:1,exp:"Segregation of duties reduces fraud risk by splitting key functions among different individuals."},
+  {q:"What is a journal entry?",opts:["A diary of business activities","A record of a transaction showing debits and credits","A monthly summary","A customer complaint"],ans:1,exp:"A journal entry records a transaction with corresponding debits and credits in accounts."},
+  {q:"What is the purpose of reconciliation?",opts:["To reorganize the office","To ensure accounts match supporting documents and identify discrepancies","To increase revenue","To hire new staff"],ans:1,exp:"Reconciliation verifies that two sets of records (e.g., bank and books) agree."},
+  {q:"What is fraud?",opts:["A simple accounting error","Intentional deception for personal gain","An honest mistake","A calculation error"],ans:1,exp:"Fraud is intentional misrepresentation to gain an unlawful advantage."},
+  {q:"What is the going concern principle?",opts:["The business will close soon","The assumption that a business will continue operating indefinitely","A temporary business license","A short-term contract"],ans:1,exp:"The going concern principle assumes the business will continue operating in the foreseeable future."},
+  {q:"What is the purpose of a budget variance analysis?",opts:["To create a new budget","To compare actual results to budgeted amounts and investigate differences","To eliminate spending","To maximize costs"],ans:1,exp:"Variance analysis identifies and explains the differences between budget and actual results."},
+  {q:"What is a contingent liability?",opts:["A liability that will definitely occur","A possible obligation that depends on future events","Revenue not yet received","A tax deduction"],ans:1,exp:"A contingent liability is a potential obligation dependent on uncertain future events."},
+  {q:"What is the acid-test ratio?",opts:["Testing for poison in products","A more stringent liquidity test than the current ratio","A quality control measure","A safety test"],ans:1,exp:"The acid-test (quick) ratio is current assets minus inventory, divided by current liabilities."},
+  {q:"What is return on equity (ROE)?",opts:["Interest earned on savings","Net profit divided by shareholder equity, showing return on investment","Stock price growth","Revenue minus expenses"],ans:1,exp:"ROE measures how effectively a company uses shareholder capital to generate profit."}
+];
+
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let playerName = "";
+let hasAnswered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getToday() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) {
+    alert("Please enter your name to start.");
+    return;
+  }
+  const attempts = JSON.parse(localStorage.getItem('quiz_attempts_two') || '[]');
+  const alreadyPlayed = attempts.find(a => a.name === name);
+  if (alreadyPlayed) {
+    alert("You have already taken this quiz! View the leaderboard to see your score.");
+    showLeaderboard();
+    return;
+  }
+  playerName = name;
+  currentQuestions = shuffle(QUESTION_BANK).slice(0, 10);
+  currentIndex = 0;
+  score = 0;
+  hasAnswered = false;
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = currentQuestions[currentIndex];
+  document.getElementById('qCounter').textContent = `Question ${currentIndex + 1} of 10`;
+  document.getElementById('progressBar').style.width = `${(currentIndex + 1) * 10}%`;
+  document.getElementById('questionText').textContent = q.q;
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<div class="option-letter">${String.fromCharCode(65+i)}</div><div>${opt}</div>`;
+    div.onclick = () => selectOption(i, div);
+    box.appendChild(div);
+  });
+  document.getElementById('explanationBox').classList.remove('show');
+  document.getElementById('nextBtn').style.display = 'none';
+  hasAnswered = false;
+}
+
+function selectOption(idx, el) {
+  if (hasAnswered) return;
+  hasAnswered = true;
+  const q = currentQuestions[currentIndex];
+  const options = document.querySelectorAll('.option');
+  options.forEach((opt, i) => {
+    opt.style.pointerEvents = 'none';
+    if (i === q.ans) opt.classList.add('correct');
+    else if (i === idx && i !== q.ans) opt.classList.add('wrong');
+  });
+  if (idx === q.ans) score++;
+  document.getElementById('explanationBox').textContent = q.exp;
+  document.getElementById('explanationBox').classList.add('show');
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex < 10) {
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  const today = getToday();
+  const attempts = JSON.parse(localStorage.getItem('quiz_attempts_two') || '[]');
+  attempts.push({
+    name: playerName,
+    score: score,
+    date: today,
+    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+  });
+  localStorage.setItem('quiz_attempts_two', JSON.stringify(attempts));
+  showScreen('screen-result');
+  document.getElementById('resultCircle').style.setProperty('--score', score);
+  document.getElementById('resultScore').textContent = `${score}/10`;
+  let msg = "";
+  if (score >= 8) msg = "Excellent! Strong mastery of advanced accounting concepts.";
+  else if (score >= 5) msg = "Good effort. Review the concepts and try again tomorrow.";
+  else msg = "Keep studying! Focus on the core accounting principles and retake the quiz.";
+  document.getElementById('resultMessage').textContent = msg;
+}
+
+function showLeaderboard() {
+  const attempts = JSON.parse(localStorage.getItem('quiz_attempts_two') || '[]');
+  document.getElementById('lbDate').textContent = `${attempts.length} player${attempts.length !== 1 ? 's' : ''} have taken the quiz`;
+  attempts.sort((a, b) => b.score - a.score || a.time.localeCompare(b.time));
+  const box = document.getElementById('leaderboardBox');
+  box.innerHTML = '';
+  if (attempts.length === 0) {
+    box.innerHTML = '<div class="no-scores">No scores yet. Be the first to play!</div>';
+  }
+  else {
+    attempts.forEach((entry, i) => {
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      let rankClass = '';
+      if (i === 0) rankClass = 'gold';
+      else if (i === 1) rankClass = 'silver';
+      else if (i === 2) rankClass = 'bronze';
+      row.innerHTML = `
+        <div class="lb-rank ${rankClass}">#${i + 1}</div>
+        <div class="lb-name">${entry.name}</div>
+        <div class="lb-score">${entry.score}/10</div>
+        <div class="lb-time">${entry.date}</div>
+      `;
+      box.appendChild(row);
+    });
+  }
+  showScreen('screen-leaderboard');
+}
+
+function goHome() {
+  document.getElementById('playerName').value = '';
+  showScreen('screen-login');
+}
+</script>
+</body>
+</html>
